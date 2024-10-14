@@ -9,40 +9,40 @@ import 'package:qbitter/widgets/empty.dart';
 import 'package:qbitter/widgets/main_drawer.dart';
 import 'package:qbitter/widgets/pattern_item.dart';
 
-class ProductScreen extends ConsumerWidget {
+class PatternScreen extends ConsumerWidget {
   static const String routePath = "/products";
 
-  const ProductScreen({super.key});
+  const PatternScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AsyncProviderWrapper<List<Pattern>>(
         provider: patternsProvider,
         future: patternsProvider.future,
-        render: (products) {
+        render: (patterns) {
           return Scaffold(
               appBar: AppBar(
                 title: const Text('Patterns'),
               ),
               drawer: const MainDrawer(
-                active: ProductScreen.routePath,
+                active: PatternScreen.routePath,
               ),
-              body: products.isEmpty
+              body: patterns.isEmpty
                   ? const EmptyListMessage(
-                      message: "No products yet", iconData: Icons.error_outline)
+                      message: "No patterns yet", iconData: Icons.error_outline)
                   : ListView.builder(
-                      itemCount: products.length,
+                      itemCount: patterns.length,
                       itemBuilder: (context, index) {
-                        final product = products[index];
+                        final pattern = patterns[index];
                         return PatternItem(
-                            product: product,
+                            pattern: pattern,
                             onDelete: () => ref
                                 .read(patternsProvider.notifier)
-                                .remove(product));
+                                .remove(pattern));
                       },
                     ),
               floatingActionButton: FloatingActionButton(
-                onPressed: () => context.push(PatternScreenForm.routePath),
+                onPressed: () => context.go(PatternScreenForm.routePath),
                 child: const Icon(Icons.add),
               ));
         });

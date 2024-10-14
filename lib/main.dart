@@ -5,6 +5,7 @@ import 'package:fpdart/fpdart.dart' as fp;
 import 'package:qbitter/providers/auth.dart';
 import 'package:qbitter/providers/theme_provider.dart';
 import 'package:qbitter/screens/auth.dart';
+import 'package:qbitter/screens/patterns/patterns.dart';
 import 'package:qbitter/utils/router.dart';
 import 'package:qbitter/widgets/async_provider_wrapper.dart';
 
@@ -12,17 +13,17 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
-  runApp(const ProviderScope(child: Rosadmin()));
+  runApp(const ProviderScope(child: QBitter()));
 }
 
-class Rosadmin extends ConsumerWidget {
-  const Rosadmin({super.key});
+class QBitter extends ConsumerWidget {
+  const QBitter({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(themexProvider);
     return MaterialApp.router(
-      title: 'Rosadmin',
+      title: 'QBitter',
       theme: theme.current,
       routerConfig: router,
     );
@@ -50,7 +51,7 @@ class _SplashViewState extends State<SplashView> {
       provider: authProvider,
       future: authProvider.future,
       errorOverride: const fp.Option.of(AuthScreen()),
-      render: (user) => const DashboardScreen(),
+      render: (token) => const PatternScreen(),
     );
   }
 }
