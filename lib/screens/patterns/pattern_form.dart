@@ -79,6 +79,23 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                DropdownButton<String>(
+                    value: Selectors.sources.keys.toList()[0],
+                    items: Selectors.sources.values
+                        .mapWithIndex<DropdownMenuItem<String>>(
+                            (label, index) => DropdownMenuItem<String>(
+                                  value: Selectors.sources.keys.toList()[index],
+                                  child: Text(label),
+                                ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedSource = value;
+                        });
+                      }
+                    }),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _queryController,
                   decoration:
