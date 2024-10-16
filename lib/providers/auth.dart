@@ -8,6 +8,7 @@ import 'package:qbitter/helpers/types.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
+import 'package:qbitter/models/server.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:qbitter/providers/storage.dart';
 
@@ -16,18 +17,22 @@ part 'auth.g.dart';
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   @override
-  Future<Either<Failure, String>> build() async {
+  Future<Either<Failure, Server>> build() async {
     final storage = ref.read(storageProvider);
-    final token = await storage.read(key: "TOKEN");
+    final serverJson = await storage.read(key: "SERVER");
 
-    if (token != null) {
+    if (serverJson != null) {
+      final server = Server.fromJson(jsonDecode(serverJson));
+
       final Map<String, String> requestHeaders = {
         "Content-Type": "application/json",
       };
 
       try {
-        final response = await post(Uri.parse(Endpoints.tokenCheck),
-            body: jsonEncode({"token": token}), headers: requestHeaders);
+        final response = await post(
+            Uri.parse("${server.url}/${Endpoints.tokenCheck}"),
+            body: jsonEncode({"token": server.token}),
+            headers: requestHeaders);
 
         if (response.statusCode >= 400) {
           final error = jsonDecode(response.body);
@@ -43,43 +48,74 @@ class Auth extends _$Auth {
           return Left(Failure(message: "Token not valid"));
         }
 
-        return Right(token);
+        return Right(server);
       } catch (e, stktrc) {
         return Left(Failure(message: e.toString(), stackTrace: stktrc));
       }
     } else {
-      return Left(Failure(message: "User not found"));
+      return Left(Failure(message: "Server definition not found"));
     }
   }
 
-  Future<void> setToken(String token) async {
+  Future<Either<Failure, String>> getServerUrl() async {
     final storage = ref.read(storageProvider);
-    await storage.write(key: "TOKEN", value: token);
+    final serverJson = await storage.read(key: "SERVER");
 
-    state = AsyncValue.data(Right(token));
+    if (serverJson != null) {
+      final server = Server.fromJson(jsonDecode(serverJson));
+
+      return Right(server.url);
+    } else {
+      return Left(Failure(message: "Server definition not found"));
+    }
+  }
+
+  Future<void> setServer(Server server) async {
+    final storage = ref.read(storageProvider);
+    await storage.write(key: "SERVER", value: jsonEncode(server.toJson()));
+
+    state = AsyncValue.data(Right(server));
   }
 
   Future<void> logout() async {
     final storage = ref.read(storageProvider);
-    await storage.delete(key: "TOKEN");
+    await storage.delete(key: "SERVER");
     state = AsyncValue.data(Left(Failure(message: "logged out...")));
   }
 }
 
 class AuthRepo {
-  static FutureEither<String> login(
-      String email, String password, NetworkRepo network) async {
+  static FutureEither<Server> login(
+      String server, String password, NetworkRepo network) async {
     try {
+      if (server.isEmpty) {
+        return Left(Failure(message: "Server not defined"));
+      }
+
+      if (password.isEmpty) {
+        return Left(Failure(message: "Password not defined"));
+      }
+
+      if (!server.startsWith("http://")) {
+        server = "http://$server";
+      }
+
+      if (server.endsWith("/")) {
+        server = server.substring(0, server.length - 1);
+      }
+
+      server = server.toLowerCase();
+
       final result = await network.postRequest(
-          url: Endpoints.loginEndpoint,
-          body: {"email": email, "password": password},
+          url: "$server/${Endpoints.loginEndpoint}",
+          body: {"server": server, "password": password},
           requireAuth: false);
 
       return switch (result) {
         Left(value: final l) => Left(Failure(message: l.message)),
         Right(value: final r) => r.statusCode >= 400
             ? Left(Failure(message: String.fromCharCodes(r.bodyBytes)))
-            : Right((jsonDecode(r.body) as Map<String, dynamic>)["token"])
+            : Right(Server.fromJson(jsonDecode(r.body) as Map<String, dynamic>))
       };
     } catch (e, stktrc) {
       return Left(Failure(

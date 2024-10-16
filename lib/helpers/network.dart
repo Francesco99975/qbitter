@@ -24,7 +24,8 @@ class Network extends _$Network {
     return auth.when(
         data: (value) => Right(value.match(
             (_) => NetworkRepo(authToken: const Option<String>.none()),
-            (token) => NetworkRepo(authToken: Option<String>.of(token)))),
+            (server) =>
+                NetworkRepo(authToken: Option<String>.of(server.token)))),
         error: (error, stktrc) =>
             Left(Failure(message: error.toString(), stackTrace: stktrc)),
         loading: () => Left(Failure(message: "loading...")));

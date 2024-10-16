@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart' as fp;
+import 'package:qbitter/models/server.dart';
 import 'package:qbitter/providers/auth.dart';
 import 'package:qbitter/providers/theme_provider.dart';
 import 'package:qbitter/screens/auth.dart';
@@ -47,11 +48,11 @@ class _SplashViewState extends State<SplashView> {
 
   @override
   Widget build(BuildContext context) {
-    return AsyncProviderWrapper<String>(
+    return AsyncProviderWrapper<Server>(
       provider: authProvider,
       future: authProvider.future,
       errorOverride: const fp.Option.of(AuthScreen()),
-      render: (token) => const PatternScreen(),
+      render: (_) => const PatternScreen(),
     );
   }
 }

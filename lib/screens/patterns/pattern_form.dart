@@ -98,7 +98,7 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButton<String>(
-                    value: _selectedPeriod,
+                    value: Selectors.periods.keys.toList()[0],
                     items: Selectors.periods.values
                         .mapWithIndex<DropdownMenuItem<String>>(
                             (label, index) => DropdownMenuItem<String>(
@@ -116,7 +116,7 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                 const SizedBox(height: 16),
                 if (_selectedPeriod == Selectors.periods.keys.toList()[2])
                   DropdownButton<String>(
-                      value: _selectedIndicator,
+                      value: Selectors.weekIndicators.keys.toList()[0],
                       items: Selectors.weekIndicators.values
                           .mapWithIndex<DropdownMenuItem<String>>(
                               (label, index) => DropdownMenuItem<String>(
@@ -138,7 +138,7 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                       labelText: 'Select a Day',
                       border: OutlineInputBorder(),
                     ),
-                    value: _selectedIndicator,
+                    value: "1",
                     items:
                         List.generate(28, (index) => index + 1).map((int day) {
                       return DropdownMenuItem<String>(

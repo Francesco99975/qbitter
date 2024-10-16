@@ -22,16 +22,17 @@ final GoRouter router = GoRouter(
       path: PatternScreenForm.routePath,
       name: PatternScreenForm.routePath,
       builder: (BuildContext context, GoRouterState state) {
-        final fireTime = DateTime.parse(state.uri.queryParameters['fire']!);
+        final fireTime = DateTime.parse(
+            state.uri.queryParameters['fire'] ?? "2000-01-01T00:00:00");
 
         return PatternScreenForm(
-            id: state.uri.queryParameters['id'],
-            source: state.uri.queryParameters['source'],
-            query: state.uri.queryParameters['query']!.split(","),
-            search: state.uri.queryParameters['search']!.split(","),
-            download: state.uri.queryParameters['download'],
-            period: state.uri.queryParameters['period'],
-            indicator: state.uri.queryParameters['indicator'],
+            id: state.uri.queryParameters['id'] ?? "",
+            source: state.uri.queryParameters['source'] ?? "",
+            query: state.uri.queryParameters['query']?.split(","),
+            search: state.uri.queryParameters['search']?.split(","),
+            download: state.uri.queryParameters['download'] ?? "",
+            period: state.uri.queryParameters['period'] ?? "",
+            indicator: state.uri.queryParameters['indicator'] ?? "",
             fire: TimeOfDay(hour: fireTime.hour, minute: fireTime.minute));
       },
     ),

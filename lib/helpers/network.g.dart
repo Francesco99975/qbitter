@@ -6,7 +6,7 @@ part of 'network.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$networkHash() => r'e880116154b0b30a19c561a8e0679163b495fa8b';
+String _$networkHash() => r'a83a1154e3cac984c914565a115ce03261d0f5a5';
 
 /// See also [Network].
 @ProviderFor(Network)

@@ -6,7 +6,7 @@ part of 'patterns.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$patternsHash() => r'17245ee790eabf6a7a83cdf4f6e97138458a2593';
+String _$patternsHash() => r'bfaafa92d1ceec3075fd7fc91c483eaee5b4c35f';
 
 /// See also [Patterns].
 @ProviderFor(Patterns)

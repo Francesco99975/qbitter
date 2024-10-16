@@ -42,7 +42,7 @@ class PatternScreen extends ConsumerWidget {
                       },
                     ),
               floatingActionButton: FloatingActionButton(
-                onPressed: () => context.go(PatternScreenForm.routePath),
+                onPressed: () => context.push(PatternScreenForm.routePath),
                 child: const Icon(Icons.add),
               ));
         });

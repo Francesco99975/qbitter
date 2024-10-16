@@ -9,7 +9,7 @@ class SnackBarService {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message),
       backgroundColor: Theme.of(context).colorScheme.error,
-      duration: duration ?? const Duration(seconds: 3),
+      duration: duration ?? const Duration(seconds: 10),
     ));
   }
 

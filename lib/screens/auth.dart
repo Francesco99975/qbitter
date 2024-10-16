@@ -30,7 +30,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final network = ref.read(networkProvider);
     final auth = ref.read(authProvider.notifier);
 
-    return network.match((l) => Left(l), (network) async {
+    return await network.match((l) => Left(l), (network) async {
       var response = await AuthRepo.login(server, password, network);
 
       final _ = switch (response) {
@@ -41,7 +41,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 duration: const Duration(seconds: 5),
               ))
           },
-        Right(value: final data) => {await auth.setToken(data)},
+        Right(value: final data) => {await auth.setServer(data)},
       };
       loading = false;
       return const Right(null);
