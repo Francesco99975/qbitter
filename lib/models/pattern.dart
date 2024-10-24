@@ -12,7 +12,8 @@ class Pattern with _$Pattern {
     required String downloadPath,
     required String period,
     required String dayIndicator,
-    required DateTime fireTime,
+    required int fireHour,
+    required int fireMinute,
   }) = _Pattern;
 
   factory Pattern.fromJson(Map<String, dynamic> json) =>

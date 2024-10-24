@@ -38,15 +38,16 @@ class PatternItem extends StatelessWidget {
           'download': pattern.downloadPath,
           'period': pattern.period,
           'indicator': pattern.dayIndicator,
-          'fire': pattern.fireTime.toIso8601String(),
+          'fireh': pattern.fireHour.toString(),
+          'firem': pattern.fireMinute.toString(),
         }),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
               icon: Icon(
-                Icons.phone,
-                color: Theme.of(context).colorScheme.primary,
+                Icons.delete,
+                color: Theme.of(context).colorScheme.error,
               ),
               onPressed: () {
                 _showConfirmationDialog(context, onDelete);
@@ -73,7 +74,10 @@ class PatternItem extends StatelessWidget {
               child: const Text("Cancel"),
             ),
             TextButton(
-              onPressed: onConfirm,
+              onPressed: () => {
+                onConfirm(),
+                Navigator.of(context).pop(),
+              },
               child: const Text("Confirm Removal"),
             ),
           ],

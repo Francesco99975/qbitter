@@ -50,11 +50,11 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
   void initState() {
     super.initState();
     _id = widget.id ?? '';
-    _selectedSource = widget.source ?? '';
+    _selectedSource = widget.source ?? Selectors.sources.keys.toList()[0];
     _queryController = TextEditingController(text: widget.query?.join(','));
     _searchController = TextEditingController(text: widget.search?.join(','));
     _downloadController = TextEditingController(text: widget.download ?? '');
-    _selectedPeriod = widget.period ?? '';
+    _selectedPeriod = widget.period ?? Selectors.periods.keys.toList()[0];
     _selectedIndicator = widget.indicator ?? '-1';
     _fire = widget.fire ?? TimeOfDay.now();
   }
@@ -80,7 +80,7 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 DropdownButton<String>(
-                    value: Selectors.sources.keys.toList()[0],
+                    value: _selectedSource,
                     items: Selectors.sources.values
                         .mapWithIndex<DropdownMenuItem<String>>(
                             (label, index) => DropdownMenuItem<String>(
@@ -115,7 +115,7 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButton<String>(
-                    value: Selectors.periods.keys.toList()[0],
+                    value: _selectedPeriod,
                     items: Selectors.periods.values
                         .mapWithIndex<DropdownMenuItem<String>>(
                             (label, index) => DropdownMenuItem<String>(
@@ -127,13 +127,22 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                       if (value != null) {
                         setState(() {
                           _selectedPeriod = value;
+                          if (_selectedPeriod ==
+                              Selectors.periods.keys.toList()[1]) {
+                            _selectedIndicator = '00';
+                          } else if (_selectedPeriod ==
+                              Selectors.periods.keys.toList()[2]) {
+                            _selectedIndicator = '1';
+                          } else {
+                            _selectedIndicator = '-1';
+                          }
                         });
                       }
                     }),
                 const SizedBox(height: 16),
-                if (_selectedPeriod == Selectors.periods.keys.toList()[2])
+                if (_selectedPeriod == Selectors.periods.keys.toList()[1])
                   DropdownButton<String>(
-                      value: Selectors.weekIndicators.keys.toList()[0],
+                      value: _selectedIndicator,
                       items: Selectors.weekIndicators.values
                           .mapWithIndex<DropdownMenuItem<String>>(
                               (label, index) => DropdownMenuItem<String>(
@@ -149,13 +158,13 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                           });
                         }
                       }),
-                if (_selectedPeriod == Selectors.periods.keys.toList()[1])
+                if (_selectedPeriod == Selectors.periods.keys.toList()[2])
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
                       labelText: 'Select a Day',
                       border: OutlineInputBorder(),
                     ),
-                    value: "1",
+                    value: _selectedIndicator,
                     items:
                         List.generate(28, (index) => index + 1).map((int day) {
                       return DropdownMenuItem<String>(
@@ -167,12 +176,6 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
                       setState(() {
                         _selectedIndicator = newValue!;
                       });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a day';
-                      }
-                      return null;
                     },
                   ),
                 const SizedBox(height: 16),
@@ -226,13 +229,8 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
             downloadPath: _downloadController.text.trim(),
             period: _selectedPeriod,
             dayIndicator: _selectedIndicator,
-            fireTime: DateTime(
-              DateTime.now().year,
-              DateTime.now().month,
-              DateTime.now().day,
-              _fire.hour,
-              _fire.minute,
-            ));
+            fireHour: _fire.hour,
+            fireMinute: _fire.minute);
 
         final response = _id.isEmpty
             ? await ref.read(patternsProvider.notifier).add(pattern)

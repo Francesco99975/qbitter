@@ -27,10 +27,15 @@ mixin _$Pattern {
   String get downloadPath => throw _privateConstructorUsedError;
   String get period => throw _privateConstructorUsedError;
   String get dayIndicator => throw _privateConstructorUsedError;
-  DateTime get fireTime => throw _privateConstructorUsedError;
+  int get fireHour => throw _privateConstructorUsedError;
+  int get fireMinute => throw _privateConstructorUsedError;
 
+  /// Serializes this Pattern to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Pattern
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $PatternCopyWith<Pattern> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -47,7 +52,8 @@ abstract class $PatternCopyWith<$Res> {
       String downloadPath,
       String period,
       String dayIndicator,
-      DateTime fireTime});
+      int fireHour,
+      int fireMinute});
 }
 
 /// @nodoc
@@ -60,6 +66,8 @@ class _$PatternCopyWithImpl<$Res, $Val extends Pattern>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Pattern
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -70,7 +78,8 @@ class _$PatternCopyWithImpl<$Res, $Val extends Pattern>
     Object? downloadPath = null,
     Object? period = null,
     Object? dayIndicator = null,
-    Object? fireTime = null,
+    Object? fireHour = null,
+    Object? fireMinute = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -101,10 +110,14 @@ class _$PatternCopyWithImpl<$Res, $Val extends Pattern>
           ? _value.dayIndicator
           : dayIndicator // ignore: cast_nullable_to_non_nullable
               as String,
-      fireTime: null == fireTime
-          ? _value.fireTime
-          : fireTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+      fireHour: null == fireHour
+          ? _value.fireHour
+          : fireHour // ignore: cast_nullable_to_non_nullable
+              as int,
+      fireMinute: null == fireMinute
+          ? _value.fireMinute
+          : fireMinute // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -124,7 +137,8 @@ abstract class _$$PatternImplCopyWith<$Res> implements $PatternCopyWith<$Res> {
       String downloadPath,
       String period,
       String dayIndicator,
-      DateTime fireTime});
+      int fireHour,
+      int fireMinute});
 }
 
 /// @nodoc
@@ -135,6 +149,8 @@ class __$$PatternImplCopyWithImpl<$Res>
       _$PatternImpl _value, $Res Function(_$PatternImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Pattern
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -145,7 +161,8 @@ class __$$PatternImplCopyWithImpl<$Res>
     Object? downloadPath = null,
     Object? period = null,
     Object? dayIndicator = null,
-    Object? fireTime = null,
+    Object? fireHour = null,
+    Object? fireMinute = null,
   }) {
     return _then(_$PatternImpl(
       id: null == id
@@ -176,10 +193,14 @@ class __$$PatternImplCopyWithImpl<$Res>
           ? _value.dayIndicator
           : dayIndicator // ignore: cast_nullable_to_non_nullable
               as String,
-      fireTime: null == fireTime
-          ? _value.fireTime
-          : fireTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+      fireHour: null == fireHour
+          ? _value.fireHour
+          : fireHour // ignore: cast_nullable_to_non_nullable
+              as int,
+      fireMinute: null == fireMinute
+          ? _value.fireMinute
+          : fireMinute // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -195,7 +216,8 @@ class _$PatternImpl implements _Pattern {
       required this.downloadPath,
       required this.period,
       required this.dayIndicator,
-      required this.fireTime})
+      required this.fireHour,
+      required this.fireMinute})
       : _queryKeywords = queryKeywords,
         _searchKeywords = searchKeywords;
 
@@ -229,11 +251,13 @@ class _$PatternImpl implements _Pattern {
   @override
   final String dayIndicator;
   @override
-  final DateTime fireTime;
+  final int fireHour;
+  @override
+  final int fireMinute;
 
   @override
   String toString() {
-    return 'Pattern(id: $id, source: $source, queryKeywords: $queryKeywords, searchKeywords: $searchKeywords, downloadPath: $downloadPath, period: $period, dayIndicator: $dayIndicator, fireTime: $fireTime)';
+    return 'Pattern(id: $id, source: $source, queryKeywords: $queryKeywords, searchKeywords: $searchKeywords, downloadPath: $downloadPath, period: $period, dayIndicator: $dayIndicator, fireHour: $fireHour, fireMinute: $fireMinute)';
   }
 
   @override
@@ -252,11 +276,13 @@ class _$PatternImpl implements _Pattern {
             (identical(other.period, period) || other.period == period) &&
             (identical(other.dayIndicator, dayIndicator) ||
                 other.dayIndicator == dayIndicator) &&
-            (identical(other.fireTime, fireTime) ||
-                other.fireTime == fireTime));
+            (identical(other.fireHour, fireHour) ||
+                other.fireHour == fireHour) &&
+            (identical(other.fireMinute, fireMinute) ||
+                other.fireMinute == fireMinute));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -267,9 +293,12 @@ class _$PatternImpl implements _Pattern {
       downloadPath,
       period,
       dayIndicator,
-      fireTime);
+      fireHour,
+      fireMinute);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Pattern
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PatternImplCopyWith<_$PatternImpl> get copyWith =>
@@ -292,7 +321,8 @@ abstract class _Pattern implements Pattern {
       required final String downloadPath,
       required final String period,
       required final String dayIndicator,
-      required final DateTime fireTime}) = _$PatternImpl;
+      required final int fireHour,
+      required final int fireMinute}) = _$PatternImpl;
 
   factory _Pattern.fromJson(Map<String, dynamic> json) = _$PatternImpl.fromJson;
 
@@ -311,9 +341,14 @@ abstract class _Pattern implements Pattern {
   @override
   String get dayIndicator;
   @override
-  DateTime get fireTime;
+  int get fireHour;
   @override
-  @JsonKey(ignore: true)
+  int get fireMinute;
+
+  /// Create a copy of Pattern
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PatternImplCopyWith<_$PatternImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

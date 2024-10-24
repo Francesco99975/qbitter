@@ -37,9 +37,10 @@ class Patterns extends _$Patterns {
 
     return server.match((l) => Left(l), (baseUrl) {
       return network.match((l) => Left(l), (network) async {
+        final body = pattern.toJson();
         final response = await network.postRequest(
             url: "$baseUrl/${Endpoints.patternEndpoint}",
-            body: pattern.toJson(),
+            body: body,
             multipart: false);
 
         return response.match((l) => Left(l), (r) {

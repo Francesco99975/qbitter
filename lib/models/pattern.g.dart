@@ -19,7 +19,8 @@ _$PatternImpl _$$PatternImplFromJson(Map<String, dynamic> json) =>
       downloadPath: json['downloadPath'] as String,
       period: json['period'] as String,
       dayIndicator: json['dayIndicator'] as String,
-      fireTime: DateTime.parse(json['fireTime'] as String),
+      fireHour: (json['fireHour'] as num).toInt(),
+      fireMinute: (json['fireMinute'] as num).toInt(),
     );
 
 Map<String, dynamic> _$$PatternImplToJson(_$PatternImpl instance) =>
@@ -31,5 +32,6 @@ Map<String, dynamic> _$$PatternImplToJson(_$PatternImpl instance) =>
       'downloadPath': instance.downloadPath,
       'period': instance.period,
       'dayIndicator': instance.dayIndicator,
-      'fireTime': instance.fireTime.toIso8601String(),
+      'fireHour': instance.fireHour,
+      'fireMinute': instance.fireMinute,
     };
