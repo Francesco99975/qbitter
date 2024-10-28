@@ -6,4 +6,8 @@ class Endpoints {
   static const tokenCheck = "$adminBaseUrl/check";
 
   static const patternEndpoint = "$adminBaseUrl/patterns";
+
+  static const patternProgressEndpoint = "$adminBaseUrl/progress";
+
+  static const patternExecutionEndpoint = "$adminBaseUrl/execute";
 }
