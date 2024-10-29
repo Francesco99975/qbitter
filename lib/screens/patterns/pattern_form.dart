@@ -51,8 +51,8 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
     super.initState();
     _id = widget.id ?? '';
     _selectedSource = widget.source ?? Selectors.sources.keys.toList()[0];
-    _queryController = TextEditingController(text: widget.query?.join(','));
-    _searchController = TextEditingController(text: widget.search?.join(','));
+    _queryController = TextEditingController(text: widget.query?.join(' '));
+    _searchController = TextEditingController(text: widget.search?.join(' '));
     _downloadController = TextEditingController(text: widget.download ?? '');
     _selectedPeriod = widget.period ?? Selectors.periods.keys.toList()[0];
     _selectedIndicator = widget.indicator ?? '-1';

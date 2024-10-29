@@ -62,7 +62,7 @@ class Patterns extends _$Patterns {
         final response = await network.putRequest(
             url: "$baseUrl/${Endpoints.patternEndpoint}/${pattern.id}",
             body: pattern.toJson(),
-            multipart: true);
+            multipart: false);
 
         return response.match((l) => Left(l), (r) {
           final List<dynamic> data = jsonDecode(r.body);

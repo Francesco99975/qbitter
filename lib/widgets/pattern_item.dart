@@ -49,21 +49,31 @@ class _PatternItemState extends ConsumerState<PatternItem> {
     final server = await ref.read(authProvider.notifier).getServerUrl();
     // Set a timer to request progress every 2 seconds
     _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      server.match(
-          (l) => SnackBarService.showNegativeSnackBar(
-              context: context, message: l.message), (baseUrl) async {
-        return network.match(
-            (l) => SnackBarService.showNegativeSnackBar(
-                context: context, message: l.message), (network) async {
+      server.match((l) {
+        _timer?.cancel();
+        SnackBarService.showNegativeSnackBar(
+            context: context, message: l.message);
+      }, (baseUrl) async {
+        return network.match((l) {
+          _timer?.cancel();
+          SnackBarService.showNegativeSnackBar(
+              context: context, message: l.message);
+        }, (network) async {
           final response = await network.getRequest(
               url:
                   "$baseUrl/${Endpoints.patternProgressEndpoint}/${widget.pattern.id}");
 
-          response.match(
-              (l) => SnackBarService.showNegativeSnackBar(
-                  context: context, message: l.message), (response) async {
+          response.match((l) {
+            _timer?.cancel();
+            setState(() {
+              _progress = 0.0;
+            });
+            SnackBarService.showNegativeSnackBar(
+                context: context, message: l.message);
+          }, (response) async {
             final jsonResponse = jsonDecode(response.body);
-            final progress = jsonResponse['progress'];
+            double progress = (jsonResponse['progress'] as num).toDouble();
+
             if (progress == 1.0) {
               _timer?.cancel();
               setState(() {
@@ -99,7 +109,9 @@ class _PatternItemState extends ConsumerState<PatternItem> {
             (l) => SnackBarService.showNegativeSnackBar(
                 context: context, message: l.message), (response) async {
           SnackBarService.showPositiveSnackBar(
-              context: context, message: "Executing pattern...");
+              context: context,
+              message:
+                  "Executing pattern ${widget.pattern.queryKeywords.join(", ")} ...");
         });
       });
     });
@@ -111,6 +123,9 @@ class _PatternItemState extends ConsumerState<PatternItem> {
 
     // Cancel Timer
     _timer?.cancel();
+    setState(() {
+      _progress = 0.0;
+    });
     server.match(
         (l) => SnackBarService.showNegativeSnackBar(
             context: context, message: l.message), (baseUrl) async {
@@ -119,14 +134,11 @@ class _PatternItemState extends ConsumerState<PatternItem> {
               context: context, message: l.message), (network) async {
         final response = await network.deleteRequest(
             url:
-                "$baseUrl/${Endpoints.patternProgressEndpoint}/${widget.pattern.id}");
+                "$baseUrl/${Endpoints.patternExecutionEndpoint}/${widget.pattern.id}");
 
         response.match(
             (l) => SnackBarService.showNegativeSnackBar(
                 context: context, message: l.message), (response) async {
-          setState(() {
-            _progress = 0.0;
-          });
           SnackBarService.showPositiveSnackBar(
               context: context, message: "Execution Stopped");
         });
