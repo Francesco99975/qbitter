@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +11,7 @@ import 'package:qbitter/helpers/network.dart';
 import 'package:qbitter/models/pattern.dart';
 import 'package:qbitter/providers/auth.dart';
 import 'package:qbitter/screens/patterns/pattern_form.dart';
+import 'package:qbitter/utils/decoder.dart';
 import 'package:qbitter/utils/snackbar_service.dart';
 
 class PatternItem extends ConsumerStatefulWidget {
@@ -71,19 +71,27 @@ class _PatternItemState extends ConsumerState<PatternItem> {
             SnackBarService.showNegativeSnackBar(
                 context: context, message: l.message);
           }, (response) async {
-            final jsonResponse = jsonDecode(response.body);
-            double progress = (jsonResponse['progress'] as num).toDouble();
-
-            if (progress == 1.0) {
+            decodeBody(response.body).match((l) {
               _timer?.cancel();
               setState(() {
                 _progress = 0.0;
               });
-            } else {
-              setState(() {
-                _progress = progress;
-              });
-            }
+              SnackBarService.showNegativeSnackBar(
+                  context: context, message: l.message);
+            }, (jsonResponse) {
+              double progress = (jsonResponse['progress'] as num).toDouble();
+
+              if (progress == 1.0) {
+                _timer?.cancel();
+                setState(() {
+                  _progress = 0.0;
+                });
+              } else {
+                setState(() {
+                  _progress = progress;
+                });
+              }
+            });
           });
         });
       });
