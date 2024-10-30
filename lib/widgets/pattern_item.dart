@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart' as fp;
+import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbitter/constants/endpoints.dart';
 import 'package:qbitter/constants/selectors.dart';
@@ -78,7 +79,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
               setState(() {
                 _progress = 0.0;
               });
-              SnackBarService.showPositiveSnackBar(
+              SnackBarService.showNegativeSnackBar(
                   context: context, message: l.message);
             }, (jsonResponse) {
               double progress = (jsonResponse['progress'] as num).toDouble();
@@ -104,31 +105,24 @@ class _PatternItemState extends ConsumerState<PatternItem> {
     });
   }
 
-  Future<void> _startExecution() async {
+  Future<Either<Failure, String>> _startExecution() async {
     final network = ref.read(networkProvider);
     final server = await ref.read(authProvider.notifier).getServerUrl();
 
-    server.match(
-        (l) => SnackBarService.showNegativeSnackBar(
-            context: context, message: l.message), (baseUrl) async {
-      return network.match(
-          (l) => SnackBarService.showNegativeSnackBar(
-              context: context, message: l.message), (network) async {
+    return server.match((l) => Left(l), (baseUrl) async {
+      return network.match((l) => Left(l), (network) async {
         final response = await network.getRequest(
           url:
               "$baseUrl/${Endpoints.patternExecutionEndpoint}/${widget.pattern.id}",
         );
 
-        response.match(
-            (l) => SnackBarService.showNegativeSnackBar(
-                context: context, message: l.message), (response) async {
+        return response.match((l) => Left(l), (response) async {
           setState(() {
             _progress = PatternItem._initialProgress;
           });
-          SnackBarService.showPositiveSnackBar(
-              context: context,
-              message:
-                  "Executing pattern ${widget.pattern.queryKeywords.join(", ")} ...");
+
+          return Right(
+              "Executing pattern ${widget.pattern.queryKeywords.join(", ")} ...");
         });
       });
     });
@@ -210,8 +204,14 @@ class _PatternItemState extends ConsumerState<PatternItem> {
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                         onPressed: () async {
-                          await _startExecution();
-                          await _startProgressRequest();
+                          (await _startExecution()).match(
+                              (l) => SnackBarService.showNegativeSnackBar(
+                                  context: context,
+                                  message: l.message), (message) async {
+                            SnackBarService.showPositiveSnackBar(
+                                context: context, message: message);
+                            await _startProgressRequest();
+                          });
                         },
                       ),
                 IconButton(
