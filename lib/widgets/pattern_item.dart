@@ -18,6 +18,8 @@ class PatternItem extends ConsumerStatefulWidget {
   final Pattern pattern;
   final Future<fp.Either<Failure, Pattern>> Function() onDelete;
 
+  static const _initialProgress = 0.00000000000000000000001;
+
   const PatternItem({
     super.key,
     required this.pattern,
@@ -76,7 +78,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
               setState(() {
                 _progress = 0.0;
               });
-              SnackBarService.showNegativeSnackBar(
+              SnackBarService.showPositiveSnackBar(
                   context: context, message: l.message);
             }, (jsonResponse) {
               double progress = (jsonResponse['progress'] as num).toDouble();
@@ -85,6 +87,10 @@ class _PatternItemState extends ConsumerState<PatternItem> {
                 _timer?.cancel();
                 setState(() {
                   _progress = 0.0;
+                });
+              } else if (progress == 0.0) {
+                setState(() {
+                  _progress = PatternItem._initialProgress;
                 });
               } else {
                 setState(() {
@@ -116,6 +122,9 @@ class _PatternItemState extends ConsumerState<PatternItem> {
         response.match(
             (l) => SnackBarService.showNegativeSnackBar(
                 context: context, message: l.message), (response) async {
+          setState(() {
+            _progress = PatternItem._initialProgress;
+          });
           SnackBarService.showPositiveSnackBar(
               context: context,
               message:
