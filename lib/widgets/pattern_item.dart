@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart' as fp;
@@ -34,10 +35,22 @@ class PatternItem extends ConsumerStatefulWidget {
 class _PatternItemState extends ConsumerState<PatternItem> {
   double _progress = 0.0; // Initialize progress to 0.0
   Timer? _timer;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _checkProgress().then((progressAvailable) {
+      if (progressAvailable) {
+        _startProgressRequest();
+      }
+    }).catchError((error) {
+      // Handle any errors that occur during the progress check
+      // You can log the error or show an error message to the user
+      if (kDebugMode) {
+        print('Error checking progress: $error');
+      }
+    });
   }
 
   @override
@@ -45,6 +58,25 @@ class _PatternItemState extends ConsumerState<PatternItem> {
     // Cancel the timer when the widget is disposed
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<bool> _checkProgress() async {
+    final network = ref.read(networkProvider);
+    final server = await ref.read(authProvider.notifier).getServerUrl();
+
+    return server.match((_) => Future.value(false), (baseUrl) {
+      return network.match((_) => Future.value(false), (network) async {
+        final response = await network.getRequest(
+          url:
+              "$baseUrl/${Endpoints.patternProgressEndpoint}/${widget.pattern.id}",
+        );
+
+        return response.match((_) => Future.value(false), (response) async {
+          return decodeBody(response.body)
+              .match((_) => Future.value(false), (_) => Future.value(true));
+        });
+      });
+    });
   }
 
   Future<void> _startProgressRequest() async {
@@ -106,6 +138,9 @@ class _PatternItemState extends ConsumerState<PatternItem> {
   }
 
   Future<Either<Failure, String>> _startExecution() async {
+    setState(() {
+      _isLoading = true;
+    });
     final network = ref.read(networkProvider);
     final server = await ref.read(authProvider.notifier).getServerUrl();
 
@@ -118,6 +153,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
 
         return response.match((l) => Left(l), (response) async {
           setState(() {
+            _isLoading = false;
             _progress = PatternItem._initialProgress;
           });
 
@@ -188,7 +224,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _progress > 0.0
+                _progress > 0.0 && !_isLoading
                     ? IconButton(
                         icon: Icon(
                           Icons.stop,
@@ -198,22 +234,31 @@ class _PatternItemState extends ConsumerState<PatternItem> {
                           await _stopExecution();
                         },
                       )
-                    : IconButton(
-                        icon: Icon(
-                          Icons.play_arrow,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                        onPressed: () async {
-                          (await _startExecution()).match(
-                              (l) => SnackBarService.showNegativeSnackBar(
-                                  context: context,
-                                  message: l.message), (message) async {
-                            SnackBarService.showPositiveSnackBar(
-                                context: context, message: message);
-                            await _startProgressRequest();
-                          });
-                        },
-                      ),
+                    : _isLoading
+                        ? Container(
+                            width: 48.0,
+                            height: 48.0,
+                            padding: const EdgeInsets.all(8.0),
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 3.0,
+                            ),
+                          )
+                        : IconButton(
+                            icon: Icon(
+                              Icons.play_arrow,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            onPressed: () async {
+                              (await _startExecution()).match(
+                                  (l) => SnackBarService.showNegativeSnackBar(
+                                      context: context,
+                                      message: l.message), (message) async {
+                                SnackBarService.showPositiveSnackBar(
+                                    context: context, message: message);
+                                await _startProgressRequest();
+                              });
+                            },
+                          ),
                 IconButton(
                   icon: Icon(
                     Icons.delete,
