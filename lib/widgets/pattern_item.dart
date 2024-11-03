@@ -36,6 +36,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
   double _progress = 0.0; // Initialize progress to 0.0
   Timer? _timer;
   bool _isLoading = false;
+  bool _isReady = false;
 
   @override
   void initState() {
@@ -44,12 +45,14 @@ class _PatternItemState extends ConsumerState<PatternItem> {
       if (progressAvailable) {
         _startProgressRequest();
       }
+      _isReady = true;
     }).catchError((error) {
       // Handle any errors that occur during the progress check
       // You can log the error or show an error message to the user
       if (kDebugMode) {
         print('Error checking progress: $error');
       }
+      _isReady = true;
     });
   }
 
@@ -138,30 +141,34 @@ class _PatternItemState extends ConsumerState<PatternItem> {
   }
 
   Future<Either<Failure, String>> _startExecution() async {
-    setState(() {
-      _isLoading = true;
-    });
-    final network = ref.read(networkProvider);
-    final server = await ref.read(authProvider.notifier).getServerUrl();
+    if (_isReady) {
+      setState(() {
+        _isLoading = true;
+      });
+      final network = ref.read(networkProvider);
+      final server = await ref.read(authProvider.notifier).getServerUrl();
 
-    return server.match((l) => Left(l), (baseUrl) async {
-      return network.match((l) => Left(l), (network) async {
-        final response = await network.getRequest(
-          url:
-              "$baseUrl/${Endpoints.patternExecutionEndpoint}/${widget.pattern.id}",
-        );
+      return server.match((l) => Left(l), (baseUrl) async {
+        return network.match((l) => Left(l), (network) async {
+          final response = await network.getRequest(
+            url:
+                "$baseUrl/${Endpoints.patternExecutionEndpoint}/${widget.pattern.id}",
+          );
 
-        return response.match((l) => Left(l), (response) async {
-          setState(() {
-            _isLoading = false;
-            _progress = PatternItem._initialProgress;
+          return response.match((l) => Left(l), (response) async {
+            setState(() {
+              _isLoading = false;
+              _progress = PatternItem._initialProgress;
+            });
+
+            return Right(
+                "Executing pattern ${widget.pattern.queryKeywords.join(", ")} ...");
           });
-
-          return Right(
-              "Executing pattern ${widget.pattern.queryKeywords.join(", ")} ...");
         });
       });
-    });
+    } else {
+      return Left(Failure(message: "Pattern is not ready"));
+    }
   }
 
   Future<void> _stopExecution() async {

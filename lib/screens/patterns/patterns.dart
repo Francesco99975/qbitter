@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbitter/models/pattern.dart';
+import 'package:qbitter/providers/auth.dart';
 import 'package:qbitter/providers/patterns.dart';
 import 'package:qbitter/screens/patterns/pattern_form.dart';
 import 'package:qbitter/widgets/async_provider_wrapper.dart';
@@ -21,9 +22,12 @@ class PatternScreen extends ConsumerWidget {
         future: patternsProvider.future,
         render: (patterns) {
           return Scaffold(
-              appBar: AppBar(
-                title: const Text('Patterns'),
-              ),
+              appBar: AppBar(title: const Text('Patterns'), actions: [
+                IconButton(
+                    onPressed: () => ref.read(authProvider.notifier).logout(),
+                    icon: Icon(Icons.logout,
+                        color: Theme.of(context).colorScheme.error)),
+              ]),
               drawer: const MainDrawer(
                 active: PatternScreen.routePath,
               ),
