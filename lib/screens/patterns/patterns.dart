@@ -7,7 +7,6 @@ import 'package:qbitter/providers/patterns.dart';
 import 'package:qbitter/screens/patterns/pattern_form.dart';
 import 'package:qbitter/widgets/async_provider_wrapper.dart';
 import 'package:qbitter/widgets/empty.dart';
-import 'package:qbitter/widgets/main_drawer.dart';
 import 'package:qbitter/widgets/pattern_item.dart';
 
 class PatternScreen extends ConsumerWidget {
@@ -28,9 +27,6 @@ class PatternScreen extends ConsumerWidget {
                     icon: Icon(Icons.logout,
                         color: Theme.of(context).colorScheme.error)),
               ]),
-              drawer: const MainDrawer(
-                active: PatternScreen.routePath,
-              ),
               body: patterns.isEmpty
                   ? const EmptyListMessage(
                       message: "No patterns yet", iconData: Icons.error_outline)
