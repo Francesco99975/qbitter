@@ -96,10 +96,6 @@ class AuthRepo {
         return Left(Failure(message: "Password not defined"));
       }
 
-      if (!server.startsWith("http://")) {
-        server = "http://$server";
-      }
-
       if (server.endsWith("/")) {
         server = server.substring(0, server.length - 1);
       }

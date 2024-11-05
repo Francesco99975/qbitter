@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +12,22 @@ import 'package:qbitter/screens/patterns/patterns.dart';
 import 'package:qbitter/utils/router.dart';
 import 'package:qbitter/widgets/async_provider_wrapper.dart';
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return true;
+      };
+  }
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // This HttpOverride will be set globally in the app.
+  HttpOverrides.global = MyHttpOverrides();
+
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
   runApp(const ProviderScope(child: QBitter()));
