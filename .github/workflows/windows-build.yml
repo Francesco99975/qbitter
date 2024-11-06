@@ -1,12 +1,8 @@
 name: Windows Build
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  release:
+    types: [created, published]  # Trigger on release creation or publication
 
 jobs:
   build:
@@ -14,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Updated to use v3 for stability
+        uses: actions/checkout@v3  # Updated to use v3 for stabilitybuild/windows/x64/runner/Release/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
