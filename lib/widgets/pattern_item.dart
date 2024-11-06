@@ -194,7 +194,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
             (l) => SnackBarService.showNegativeSnackBar(
                 context: context, message: l.message), (response) async {
           SnackBarService.showPositiveSnackBar(
-              context: context, message: "Execution Stopped");
+              context: context, message: "Execution Stopped!");
         });
       });
     });
