@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +8,13 @@ import 'package:fpdart/fpdart.dart' as fp;
 import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbitter/constants/endpoints.dart';
+import 'package:qbitter/constants/events.dart';
 import 'package:qbitter/constants/selectors.dart';
 import 'package:qbitter/helpers/failure.dart';
 import 'package:qbitter/helpers/network.dart';
 import 'package:qbitter/models/pattern.dart';
 import 'package:qbitter/providers/auth.dart';
+import 'package:qbitter/providers/socket.dart';
 import 'package:qbitter/screens/patterns/pattern_form.dart';
 import 'package:qbitter/utils/decoder.dart';
 import 'package:qbitter/utils/snackbar_service.dart';
@@ -38,9 +41,25 @@ class _PatternItemState extends ConsumerState<PatternItem> {
   bool _isLoading = false;
   bool _isReady = false;
 
+  late StreamSubscription<dynamic> sub;
+
   @override
   void initState() {
     super.initState();
+
+    sub = ref.read(socketProvider).subscribe((event) {
+      if (jsonDecode(event)['type'] == SocketEvents.job) {
+        if (kDebugMode) {
+          print("event triggered");
+          print(event);
+        }
+        final pattern = Pattern.fromJson(jsonDecode(event)['payload']);
+        if (pattern.id == widget.pattern.id) {
+          _startProgressRequest();
+        }
+      }
+    });
+
     _checkProgress().then((progressAvailable) {
       if (progressAvailable) {
         _startProgressRequest();
@@ -61,6 +80,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
     // Cancel the timer when the widget is disposed
     _timer?.cancel();
     super.dispose();
+    sub.cancel();
   }
 
   Future<bool> _checkProgress() async {
@@ -114,12 +134,12 @@ class _PatternItemState extends ConsumerState<PatternItem> {
               setState(() {
                 _progress = 0.0;
               });
-              SnackBarService.showNegativeSnackBar(
-                  context: context, message: l.message);
             }, (jsonResponse) {
               double progress = (jsonResponse['progress'] as num).toDouble();
 
-              if (progress == 1.0) {
+              if (progress >= 1.0) {
+                SnackBarService.showPositiveSnackBar(
+                    context: context, message: "Download Completed!");
                 _timer?.cancel();
                 setState(() {
                   _progress = 0.0;
@@ -215,7 +235,7 @@ class _PatternItemState extends ConsumerState<PatternItem> {
               ),
             ),
             subtitle: Text(
-                "${widget.pattern.source} - ${evaluatePerdiodString(widget.pattern.period, widget.pattern.dayIndicator)} at ${widget.pattern.fireHour}:${widget.pattern.fireMinute}"),
+                "${widget.pattern.source} - ${evaluatePerdiodString(widget.pattern.period, widget.pattern.dayIndicator)} at ${TimeOfDay(hour: widget.pattern.fireHour, minute: widget.pattern.fireMinute).format(context)}"),
             onTap: () => context
                 .pushNamed(PatternScreenForm.routePath, queryParameters: {
               'id': widget.pattern.id,
@@ -280,13 +300,28 @@ class _PatternItemState extends ConsumerState<PatternItem> {
           ),
           const SizedBox(height: 8.0),
           if (_progress > 0.0)
-            LinearProgressIndicator(
-              value: _progress,
-              minHeight: 10,
-              backgroundColor: Colors.grey[300],
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary),
-            ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                LinearProgressIndicator(
+                  value: _progress,
+                  minHeight: 20,
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  semanticsLabel: "Downloading",
+                  semanticsValue: "${(_progress * 100).toStringAsFixed(2)} %",
+                  backgroundColor: const Color.fromARGB(255, 37, 37, 44),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary),
+                ),
+                Text(
+                  "${(_progress * 100).toStringAsFixed(2)} %",
+                  style: TextStyle(
+                      color: const Color.fromARGB(255, 223, 5, 243),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            )
         ],
       ),
     );

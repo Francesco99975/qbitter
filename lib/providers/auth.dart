@@ -9,6 +9,7 @@ import 'package:qbitter/helpers/types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:qbitter/models/server.dart';
+import 'package:qbitter/providers/socket.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:qbitter/providers/storage.dart';
 
@@ -20,6 +21,7 @@ class Auth extends _$Auth {
   Future<Either<Failure, Server>> build() async {
     final storage = ref.read(storageProvider);
     final serverJson = await storage.read(key: "SERVER");
+    final socket = ref.read(socketProvider);
 
     if (serverJson != null) {
       final server = Server.fromJson(jsonDecode(serverJson));
@@ -47,7 +49,7 @@ class Auth extends _$Auth {
         if (!check["valid"]) {
           return Left(Failure(message: "Token not valid"));
         }
-
+        socket.init(server.url);
         return Right(server);
       } catch (e, stktrc) {
         return Left(Failure(message: e.toString(), stackTrace: stktrc));
@@ -78,6 +80,8 @@ class Auth extends _$Auth {
   }
 
   Future<void> logout() async {
+    final socket = ref.read(socketProvider);
+    socket.close();
     final storage = ref.read(storageProvider);
     await storage.delete(key: "SERVER");
     state = AsyncValue.data(Left(Failure(message: "logged out...")));
