@@ -89,8 +89,8 @@ class Auth extends _$Auth {
 }
 
 class AuthRepo {
-  static FutureEither<Server> login(
-      String server, String password, NetworkRepo network) async {
+  static FutureEither<Server> login(String server, String password,
+      bool remember, NetworkRepo network) async {
     try {
       if (server.isEmpty) {
         return Left(Failure(message: "Server not defined"));
@@ -108,7 +108,7 @@ class AuthRepo {
 
       final result = await network.postRequest(
           url: "$server/${Endpoints.loginEndpoint}",
-          body: {"server": server, "password": password},
+          body: {"server": server, "password": password, "remember": remember},
           requireAuth: false);
 
       return switch (result) {

@@ -210,6 +210,20 @@ class _PatternScreenFormState extends ConsumerState<PatternScreenForm> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              hourMinuteTextStyle: TextStyle(fontSize: 40), // Adjust font size
+              inputDecorationTheme: InputDecorationTheme(
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 20, horizontal: 10), // Add padding
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _fire) {
       setState(() {

@@ -18,6 +18,7 @@ class AuthScreen extends ConsumerStatefulWidget {
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   final TextEditingController _serverController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _rememberMe = false;
 
   bool loading = false;
 
@@ -31,7 +32,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final auth = ref.read(authProvider.notifier);
 
     return await network.match((l) => Left(l), (network) async {
-      var response = await AuthRepo.login(server, password, network);
+      var response =
+          await AuthRepo.login(server, password, _rememberMe, network);
 
       final _ = switch (response) {
         Left(value: final l) => {
@@ -77,6 +79,24 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       labelText: 'Password',
                     ),
                     obscureText: true,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Remember Me",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      const SizedBox(width: 8.0),
+                      Switch.adaptive(
+                          value: _rememberMe,
+                          onChanged: (_) {
+                            setState(() {
+                              _rememberMe = !_rememberMe;
+                            });
+                          }),
+                    ],
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
