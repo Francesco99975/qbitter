@@ -1,0 +1,54 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build AppImage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.2'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable linux build support
+        run: flutter config --enable-linux-desktop
+
+      - name: Build Linux
+        run: flutter build linux
+
+      - name: Install AppImage dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 patchelf desktop-file-utils libglib2.0-bin
+
+      - name: Create AppImage
+        run: |
+          git clone https://github.com/AppImage/AppImageKit.git
+          cd AppImageKit
+          cmake .
+          make
+          cd ..
+          ./AppImageKit/build/appimagetool.AppDir/AppRun \
+            build/linux/x64/release/bundle appimage-output/AppImage
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-appimage
+          path: appimage-output/AppImage
