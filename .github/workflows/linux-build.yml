@@ -3,7 +3,7 @@ name: Linux Build
 on:
   workflow_dispatch:
   push:
-    branches: [ master, develop ]
+    branches: [ master ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-       - name: Install Linux build dependencies
+      - name: Install Linux build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
