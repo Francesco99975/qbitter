@@ -27,6 +27,24 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            clang \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libglib2.0-dev \
+            libblkid-dev \
+            liblzma-dev \
+            libgcrypt20-dev \
+            libssl-dev \
+            libdbus-1-dev \
+            liblz4-dev \
+            libzstd-dev
+
       - name: Enable linux build support
         run: flutter config --enable-linux-desktop
 
@@ -36,7 +54,7 @@ jobs:
       - name: Install AppImage dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libfuse2 patchelf desktop-file-utils libglib2.0-bin
+          sudo apt-get install -y libfuse2 patchelf desktop-file-utils libglib2.0-bin gtk+-3.0
 
       - name: Create AppImage
         run: |

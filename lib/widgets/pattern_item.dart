@@ -276,10 +276,13 @@ class _PatternItemState extends ConsumerState<PatternItem> {
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                             onPressed: () async {
-                              (await _startExecution()).match(
-                                  (l) => SnackBarService.showNegativeSnackBar(
-                                      context: context,
-                                      message: l.message), (message) async {
+                              (await _startExecution()).match((l) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                                SnackBarService.showNegativeSnackBar(
+                                    context: context, message: l.message);
+                              }, (message) async {
                                 SnackBarService.showPositiveSnackBar(
                                     context: context, message: message);
                                 await _startProgressRequest();
