@@ -54,7 +54,7 @@ jobs:
       - name: Install AppImage dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libfuse2 patchelf desktop-file-utils libglib2.0-bin
+          sudo apt-get install -y libfuse2 patchelf desktop-file-utils libglib2.0-bin gtk+-3.0
 
       - name: Create AppImage
         run: |
