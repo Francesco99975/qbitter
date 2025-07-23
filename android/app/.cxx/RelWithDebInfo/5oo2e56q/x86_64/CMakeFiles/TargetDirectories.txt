@@ -1,0 +1,2 @@
+/home/kalairen/code/qbitter/android/app/.cxx/RelWithDebInfo/5oo2e56q/x86_64/CMakeFiles/rebuild_cache.dir
+/home/kalairen/code/qbitter/android/app/.cxx/RelWithDebInfo/5oo2e56q/x86_64/CMakeFiles/edit_cache.dir
